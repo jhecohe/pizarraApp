@@ -1,0 +1,17 @@
+.teamTable ion-row:nth-child(even) {
+    background-color: whitesmoke;
+}
+
+.teamTable ion-row:nth-child(odd) {
+    background-color: snow;
+} 
+
+.teamTable ion-row:first-child {
+    font-weight: bold;
+    text-transform: uppercase;
+} 
+
+.teamTable ion-col {
+    border: solid 1px #fff;
+    text-align: center;
+}
