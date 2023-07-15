@@ -29,8 +29,14 @@ const appPages: AppPage[] = [
     mdIcon: mailSharp
   },
   {
-    title: 'Teams',
-    url: '/page/Teams',
+    title: 'Premier League',
+    url: '/page/Premier',
+    iosIcon: football,
+    mdIcon: football
+  },
+  {
+    title: 'Serie A League',
+    url: '/page/SerieA',
     iosIcon: football,
     mdIcon: football
   },
@@ -39,24 +45,6 @@ const appPages: AppPage[] = [
     url: '/page/Favorites',
     iosIcon: heartOutline,
     mdIcon: heartSharp
-  },
-  {
-    title: 'Archived',
-    url: '/page/Archived',
-    iosIcon: archiveOutline,
-    mdIcon: archiveSharp
-  },
-  {
-    title: 'Trash',
-    url: '/page/Trash',
-    iosIcon: trashOutline,
-    mdIcon: trashSharp
-  },
-  {
-    title: 'Spam',
-    url: '/page/Spam',
-    iosIcon: warningOutline,
-    mdIcon: warningSharp
   }
 ];
 

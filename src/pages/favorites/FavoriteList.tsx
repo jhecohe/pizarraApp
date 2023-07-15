@@ -15,7 +15,7 @@ import {
     IonToolbar,
   } from "@ionic/react";
   import { useParams } from "react-router";
-  import "../team/TeamList.css";
+  import "../premier/PremierList.css";
   import { close } from "ionicons/icons";
   import { useEffect, useState } from "react";
   import { getTeamsFavorites, removeFavorite } from "./Favorites";

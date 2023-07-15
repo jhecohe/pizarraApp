@@ -12,5 +12,5 @@ export default interface Team {
   gD: number;
   nextMatchs?: string;
   image?: string;
-  check: boolean;
+  league: string;
 }

@@ -15,34 +15,42 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { useParams } from "react-router";
-import "./TeamList.css";
+import "./SerieAList.css";
 import { trophy } from "ionicons/icons";
 import { useEffect, useState } from "react";
 import { searchTeams } from "./TeamAPI";
 import { removeFavorite, saveFavorite } from "../favorites/Favorites";
-import Team from "./Team";
+import Team from "../../models/Team";
+import useFetch from "../../hooks/useFetch";
 
-const TeamList: React.FC = () => {
+export default function SerieAList() {
   const { name } = useParams<{ name: string }>();
   const [teams, setTeams] = useState<Team[]>([]);
 
-  useEffect(() => {
-    search();
-  }, [teams]);
+  // useEffect(() => {
+  //   search();
+  // }, []);
 
-  const search = () => {
-    let result = searchTeams();
-    setTeams(result);
-  };
+  const url = import.meta.env.VITE_PIZARRA_API + "teams/serieA";
 
-  const addToFavorites = (team: Team) => {
-    if(team.check){
-      removeFavorite(team.id)
+  const response = useFetch<Team[]>(url);
 
-    } else {
-      saveFavorite(team.id);
-    }
+  if (response.state === "loading" || response.state === "idle") {
+    return <div>Cargando ...</div>;
   }
+
+  if (response.state === "error" || !response.data) {
+    return <div>Error ...</div>;
+  }
+
+  // const addToFavorites = (team: Team) => {
+  //   if(team.check){
+  //     removeFavorite(team.id)
+
+  //   } else {
+  //     saveFavorite(team.id);
+  //   }
+  // }
 
   return (
     <IonPage>
@@ -73,16 +81,15 @@ const TeamList: React.FC = () => {
               <IonCol>Points</IonCol>
               <IonCol>Favorite</IonCol>
             </IonRow>
-            {teams.map((team: Team) => (
+            {response.data.map((team: Team) => (
               <IonRow>
-                <IonCol>{team.position}</IonCol>
+                <IonCol id={team.id}>{team.position}</IonCol>
                 <IonCol>{team.name}</IonCol>
                 <IonCol>{team.mPlayed}</IonCol>
                 <IonCol>{team.mWons}</IonCol>
                 <IonCol>{team.points}</IonCol>
                 <IonCol>
-                  <IonButton color={team.check ? 'danger':'light'} size="small" fill="clear" 
-                  onClick={() => addToFavorites(team)}>
+                  <IonButton >
                     <IonIcon icon={trophy} slot="icon-only" />
                   </IonButton>
                 </IonCol>
@@ -94,5 +101,3 @@ const TeamList: React.FC = () => {
     </IonPage>
   );
 };
-
-export default TeamList;

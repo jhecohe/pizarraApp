@@ -1,5 +1,5 @@
 import { IonApp, IonRouterOutlet, IonSplitPane, setupIonicReact } from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
+import { IonReactHashRouter, IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route } from 'react-router-dom';
 import Menu from './components/Menu';
 
@@ -21,31 +21,35 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import TeamList from './pages/team/TeamList';
 import FavoriteList from './pages/favorites/FavoriteList';
+import PremierList from './pages/premier/PremierList';
+import SerieAList from './pages/serieA/SerieAList';
 
 setupIonicReact();
 
 const App: React.FC = () => {
   return (
     <IonApp>
-      <IonReactRouter>
+      <IonReactHashRouter>
         <IonSplitPane contentId="main">
           <Menu />
           <IonRouterOutlet id="main">
             <Route path="/" exact={true}>
-              <Redirect to="/page/Teams" />
+              <Redirect to="/page/Premier" />
             </Route>
 
-            <Route path="/page/Teams" exact={true}>
-              <TeamList />
+            <Route path="/page/Premier" exact={true}>
+              <PremierList />
+            </Route>
+            <Route path="/page/SerieA" exact={true}>
+              <SerieAList />
             </Route>
             <Route path="/page/Favorites" exact={true}>
               <FavoriteList />
             </Route>
           </IonRouterOutlet>
         </IonSplitPane>
-      </IonReactRouter>
+      </IonReactHashRouter>
     </IonApp>
   );
 };

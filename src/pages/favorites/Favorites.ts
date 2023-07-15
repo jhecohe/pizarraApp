@@ -1,5 +1,5 @@
-import Team from "../team/Team";
-import { favoriteTeam, searchTeams } from "../team/TeamAPI";
+import Team from "../../models/Team";
+import { favoriteTeam, searchTeams } from "../premier/TeamAPI";
 
 export function searchFavorites() {
     if (!localStorage['favorites']) {
@@ -10,8 +10,8 @@ export function searchFavorites() {
     return favorites;
 }
 
-export function getTeamsFavorites() {
-    let teams = searchTeams();
+export async function getTeamsFavorites() {
+    let teams = await searchTeams();
     let favorities = searchFavorites();
     const favoritiesList = teams.filter( (team: Team) => favorities.includes(team.id));
     return favoritiesList;
