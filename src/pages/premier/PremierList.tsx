@@ -26,6 +26,8 @@ const PremierList: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const [teams, setTeams] = useState<Team[]>([]);
 
+  const check = true;
+
   useEffect(() => {
     search();
   }, []);
@@ -35,14 +37,14 @@ const PremierList: React.FC = () => {
     setTeams(result);
   };
 
-  const addToFavorites = (team: Team) => {
-    if(team.check){
-      removeFavorite(team.id)
+  // const addToFavorites = (team: Team) => {
+  //   if(team.check){
+  //     removeFavorite(team.id)
 
-    } else {
-      saveFavorite(team.id);
-    }
-  }
+  //   } else {
+  //     saveFavorite(team.id);
+  //   }
+  // }
 
   return (
     <IonPage>
@@ -81,8 +83,8 @@ const PremierList: React.FC = () => {
                 <IonCol>{team.mWons}</IonCol>
                 <IonCol>{team.points}</IonCol>
                 <IonCol>
-                  <IonButton color={team.check ? 'danger':'light'} size="small" fill="clear" 
-                  onClick={() => addToFavorites(team)}>
+                  <IonButton color={check ? 'danger':'light'} size="small" fill="clear" >
+                  {/* onClick={() => addToFavorites(team)}> */}
                     <IonIcon icon={trophy} slot="icon-only" />
                   </IonButton>
                 </IonCol>
