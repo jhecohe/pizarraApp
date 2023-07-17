@@ -19,11 +19,17 @@ import {
   import { close } from "ionicons/icons";
   import { useEffect, useState } from "react";
   import { getTeamsFavorites, removeFavorite } from "./Favorites";
+import Team from "../../models/Team";
+import useFetch from "../../hooks/useFetch";
   
   const FavoriteList: React.FC = () => {
+
+    const url = import.meta.env.VITE_PIZARRA_API + "favorite";
+
     const { name } = useParams<{ name: string }>();
     const [favorites, setFavorites] = useState<any>([]);
   
+    const response = useFetch<Team[]>(url);
     useEffect(() => {
       search();
     }, [favorites]);
