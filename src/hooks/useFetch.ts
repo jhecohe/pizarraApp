@@ -1,55 +1,63 @@
 import { useEffect, useState } from "react";
+import {get, post} from "../utils/apiClient";
+import ApiResponse from "../interfaces/ApiResponse";
 
-type UseFetchState<T> = {
-    state: "idle" | "loading" | "error" | "success";
-    data: null | T;
-    error: null | any;
-}
+type UseFetchArguments = {
+  url: string;
+  method: "GET" | "POST";
+  body?: Record<string, any> | null;
+};
 
-export default function useFetch<T>(url: string){
-    const [fetchState, setFetchState] = useState<UseFetchState<T>>({
-        state: "idle",
-        data: null,
-        error: null,
-    })
+export type UseFetchReturn<T> = {
+  state: "loading" | "error" | "success";
+  data: null | ApiResponse<T>;
+  error: null | any;
+};
 
-    useEffect(function() {
-        async function fetchData() {
-            try {
-                setFetchState((oldValue) => ({
-                    ...oldValue,
-                    state: "loading"
-                }));
-                const response = await fetch(url, {
-                    mode: "cors",
-                    headers:{
-                        "Access-Control-Allow-Origin": "*"
-                    }
-                });
-                if(response.ok){
-                    const json = await response.json();
-                    setFetchState({
-                        data: json,
-                        state: "success",
-                        error: null,
-                    });
-                } else {
-                    setFetchState({
-                        data: null,
-                        state: "error",
-                        error: new Error(response.statusText),
-                    });
-                }
-            } catch (error) {
-                setFetchState({
-                    data: null,
-                    state: "error",
-                    error: error as Error,
-                });
-            }
+export default function useFetch<T>({
+  url,
+  method,
+  body,
+}: UseFetchArguments): UseFetchReturn<T> {
+  const [fetchState, setFetchState] = useState<UseFetchReturn<T>>({
+    state: "loading",
+    data: null,
+    error: null,
+  });
+
+  useEffect(
+    function () {
+      async function fetchData() {
+        try {
+          let result = null;
+          switch (method) {
+            case "GET":
+              result = await get(url);
+              break;
+            case "POST":
+              result = await post(url, body);
+              break;
+            default:
+              throw new Error("Invalid method");
+          }
+          setFetchState({
+            state: "success",
+            data: result,
+            error: null,
+          });
+          
+        } catch (error) {
+          setFetchState({
+            data: null,
+            state: "error",
+            error,
+          });
         }
-        fetchData();
-    }, [url]);
+      }
+      fetchData();
+    },
+    [url, method, body]
+  );
 
-    return fetchState;
+  return {fetchState};
 }

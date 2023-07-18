@@ -7,7 +7,6 @@ import {
   IonGrid,
   IonHeader,
   IonIcon,
-  IonItem,
   IonMenuButton,
   IonPage,
   IonRow,
@@ -19,9 +18,9 @@ import "./SerieAList.css";
 import { trophy } from "ionicons/icons";
 import { useEffect, useState } from "react";
 import { searchTeams } from "./TeamAPI";
-import { removeFavorite, saveFavorite } from "../favorites/Favorites";
+import { removeFavorite } from "../favorites/Favorites";
 import Team from "../../models/Team";
-import useFetch from "../../hooks/useFetch";
+import useFetch, { UseFetchReturn } from "../../hooks/useFetch";
 import useFetchPost from "../../hooks/useFetchPost";
 
 interface favoriteReq {
@@ -29,44 +28,47 @@ interface favoriteReq {
   idLeague: String;
 }
 
-export default function SerieAList() {
-  const { name } = useParams<{ name: string }>();
+const url = import.meta.env.VITE_PIZARRA_API + "teams/serieA";
+const urlSave = import.meta.env.VITE_PIZARRA_API + "favorite";
+
+function getTeams(): UseFetchReturn<Team> {
+  return useFetch<Team>({
+    url: url,
+    method: "GET",
+  });
+}
+
+function saveFavorite(idTeam: String, idLeague: string): UseFetchReturn<favoriteReq> {
+  return useFetch<favoriteReq>({
+    url: urlSave,
+    method: "POST",
+    body:{IdTeam: idTeam, IdLeague: idLeague}
+  });
+}
+
+function SerieAList() {
   const [teams, setTeams] = useState<Team[]>([]);
-  const [favorites, setFavorites] = useState<String[]>([]);
-  const [listFavorites, setListFavorites] = useState<Team[]>([]);
+  const [listFavorites, setListFavorites] = useState<Team[]>();
 
-  const url = import.meta.env.VITE_PIZARRA_API + "teams/serieA";
-  const urlSave = import.meta.env.VITE_PIZARRA_API + "favorite";
-
-  const response = useFetch<Team[]>(url);
-  const payload: favoriteReq = {"idTeam":"ARS", "idLeague":"Premier"}
-  const favoriteList = useFetchPost<Team[], favoriteReq>(urlSave, payload);
+  const { data: teamList, state: teamReqStatus, error: error } = getTeams();
 
   useEffect(() => {
-    if (response.state === "success") {
-      setTeams(response.data!);
+    if (teamReqStatus === "success") {
+      setTeams(teamList!);
     }
-  }, [response]);
+  }, [teamList]);
 
-  useEffect(() => {
-    if (favoriteList.state === "success") {
-      setListFavorites(favoriteList.data!);
-    }
-  }, [favorites]);
+  // useEffect(() => {
+  //   setListFavorites([]);
+  // }, []);
 
-  if (response.state === "loading") {
+  if (teamReqStatus === "loading") {
     return <div>Loading...</div>;
   }
 
-  if (response.state === "error") {
-    return <div>Error: {response.error}</div>;
+  if (teamReqStatus === "error") {
+    return <div>Error: {error}</div>;
   }
-
-  function addToFavorites (team: Team) {
-    setFavorites([...favorites, team.id]);
-  }
-
- 
   return (
     <IonPage>
       <IonHeader>
@@ -74,19 +76,19 @@ export default function SerieAList() {
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          <IonTitle>{name}</IonTitle>
+          <IonTitle>Serie A</IonTitle>
         </IonToolbar>
       </IonHeader>
 
       <IonContent fullscreen>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">{name}</IonTitle>
+            <IonTitle size="large">Serie A</IonTitle>
           </IonToolbar>
         </IonHeader>
 
         <IonCard>
-          <IonTitle>Premier League</IonTitle>
+          <IonTitle>Season 2023 - 2024</IonTitle>
           <IonGrid className="teamTable">
             <IonRow>
               <IonCol>Position</IonCol>
@@ -97,7 +99,7 @@ export default function SerieAList() {
               <IonCol>Favorite</IonCol>
             </IonRow>
             {teams.map((team: Team) => (
-              <IonRow>
+              <IonRow key={team.id}>
                 <IonCol id={team.id}>{team.position}</IonCol>
                 <IonCol>{team.name}</IonCol>
                 <IonCol>{team.mPlayed}</IonCol>
@@ -105,8 +107,8 @@ export default function SerieAList() {
                 <IonCol>{team.points}</IonCol>
                 <IonCol>
                   <IonButton
-                    onClick={() => addToFavorites(team)}
-                    color={favorites.includes(team.id) ? "danger" : "light"}
+                    onClick={() => saveFavorite(team.id, team.league)}
+                    // color={favorites.includes(team.id) ? "danger" : "light"}
                     size="small"
                     fill="clear"
                   >
@@ -121,3 +123,5 @@ export default function SerieAList() {
     </IonPage>
   );
 }
+
+export default SerieAList;
