@@ -18,33 +18,53 @@ import { useParams } from "react-router";
 import "./PremierList.css";
 import { trophy } from "ionicons/icons";
 import { useEffect, useState } from "react";
-import { searchTeams } from "./TeamAPI";
-import { removeFavorite, saveFavorite } from "../favorites/Favorites";
+import { searchTeams } from "./PremierAPI";
+import { deleteFavorite, saveFavorite, searchFavorites } from "../favorites/FavoriteAPI";
 import Team from "../../models/Team";
+import ITeamsFavoritesByUser from "../../models/TeamsFavoritesByUser";
 
 const PremierList: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const [teams, setTeams] = useState<Team[]>([]);
-
-  const check = true;
+  const [favoriteList, setFavoriteList] = useState<ITeamsFavoritesByUser[]>([]);
 
   useEffect(() => {
     search();
-  }, []);
+    loadFavorites();
+  }, [inFavorites()]);
 
   const search = async () => {
-    let result = await searchTeams();
+    let result: Team[] = await searchTeams();
     setTeams(result);
   };
 
-  // const addToFavorites = (team: Team) => {
-  //   if(team.check){
-  //     removeFavorite(team.id)
+  const loadFavorites = async () => {
+    let result: ITeamsFavoritesByUser[] = await searchFavorites("64b88f370a4f88dae3d2f07e");
+    setFavoriteList(result);
+    inFavorites();
+  };
 
-  //   } else {
-  //     saveFavorite(team.id);
-  //   }
-  // }
+  const addToFavorites = async (team: Team) => {
+    if (!favoriteList.find((fav) => fav.teamId === team.id)) {
+      const favorites: ITeamsFavoritesByUser[] = await saveFavorite(team.id, "64b88f370a4f88dae3d2f07e");
+      setFavoriteList(favorites.filter((fav) => fav.team[0].league === "premier")); 
+    } else {
+      const favorites: ITeamsFavoritesByUser[] = await deleteFavorite(team.id, "64b88f370a4f88dae3d2f07e");
+      setFavoriteList(favorites.filter((fav) => fav.team[0].league === "premier"));
+    }
+    inFavorites();
+  };
+
+  function inFavorites(): void {
+    const fav = teams.map((team) => {
+      team.check = false;
+      const res = favoriteList.some((fav) => fav.team[0].id === team.id);
+      if (res) {
+        team.check = true;
+      }
+      return team;
+    });
+  }
 
   return (
     <IonPage>
@@ -76,15 +96,19 @@ const PremierList: React.FC = () => {
               <IonCol>Favorite</IonCol>
             </IonRow>
             {teams.map((team: Team) => (
-              <IonRow>
+              <IonRow key={team.id}>
                 <IonCol>{team.position}</IonCol>
                 <IonCol>{team.name}</IonCol>
                 <IonCol>{team.mPlayed}</IonCol>
                 <IonCol>{team.mWons}</IonCol>
                 <IonCol>{team.points}</IonCol>
                 <IonCol>
-                  <IonButton color={check ? 'danger':'light'} size="small" fill="clear" >
-                  {/* onClick={() => addToFavorites(team)}> */}
+                  <IonButton
+                    color={team.check ? "danger" : "light"}
+                    size="small"
+                    fill="clear"
+                    onClick={() => addToFavorites(team)}
+                  >
                     <IonIcon icon={trophy} slot="icon-only" />
                   </IonButton>
                 </IonCol>

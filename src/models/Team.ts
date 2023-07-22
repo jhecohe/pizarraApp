@@ -1,5 +1,6 @@
 export default interface Team {
   id: string;
+  key: string;
   name: string;
   position: number;
   points: number;
@@ -13,4 +14,5 @@ export default interface Team {
   nextMatchs?: string;
   image?: string;
   league: string;
+  check?: boolean;
 }

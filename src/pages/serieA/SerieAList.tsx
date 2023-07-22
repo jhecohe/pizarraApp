@@ -17,58 +17,59 @@ import { useParams } from "react-router";
 import "./SerieAList.css";
 import { trophy } from "ionicons/icons";
 import { useEffect, useState } from "react";
-import { searchTeams } from "./TeamAPI";
-import { removeFavorite } from "../favorites/Favorites";
+import { searchTeams } from "./SerieAAPI";
 import Team from "../../models/Team";
-import useFetch, { UseFetchReturn } from "../../hooks/useFetch";
-import useFetchPost from "../../hooks/useFetchPost";
+import { deleteFavorite, saveFavorite, searchFavorites } from "../favorites/FavoriteAPI";
+import ITeamsFavoritesByUser from "../../models/TeamsFavoritesByUser";
 
 interface favoriteReq {
   idTeam: String;
   idLeague: String;
 }
 
-const url = import.meta.env.VITE_PIZARRA_API + "teams/serieA";
-const urlSave = import.meta.env.VITE_PIZARRA_API + "favorite";
-
-function getTeams(): UseFetchReturn<Team> {
-  return useFetch<Team>({
-    url: url,
-    method: "GET",
-  });
-}
-
-function saveFavorite(idTeam: String, idLeague: string): UseFetchReturn<favoriteReq> {
-  return useFetch<favoriteReq>({
-    url: urlSave,
-    method: "POST",
-    body:{IdTeam: idTeam, IdLeague: idLeague}
-  });
-}
-
-function SerieAList() {
+const SerieAList: React.FC = () => {
+  const { name } = useParams<{ name: string }>();
   const [teams, setTeams] = useState<Team[]>([]);
-  const [listFavorites, setListFavorites] = useState<Team[]>();
-
-  const { data: teamList, state: teamReqStatus, error: error } = getTeams();
+  const [favoriteList, setFavoriteList] = useState<ITeamsFavoritesByUser[]>([]);
 
   useEffect(() => {
-    if (teamReqStatus === "success") {
-      setTeams(teamList!);
+    search();
+    loadFavorites();
+  }, [inFavorites()]);
+
+  const search = async () => {
+    let result: Team[] = await searchTeams();
+    setTeams(result);
+  };
+
+  const loadFavorites = async () => {
+    let result: ITeamsFavoritesByUser[] = await searchFavorites("64b88f370a4f88dae3d2f07e");
+    setFavoriteList(result);
+    inFavorites();
+  };
+
+  const addToFavorites = async (team: Team) => {
+    if (!favoriteList.find((fav) => fav.teamId === team.id)) {
+      const favorites: ITeamsFavoritesByUser[] = await saveFavorite(team.id, "64b88f370a4f88dae3d2f07e");
+      setFavoriteList(favorites.filter((fav) => fav.team[0].league === "serieA"));
+    } else {
+      const favorites: ITeamsFavoritesByUser[] = await deleteFavorite(team.id, "64b88f370a4f88dae3d2f07e");
+      setFavoriteList(favorites.filter((fav) => fav.team[0].league === "serieA"));
     }
-  }, [teamList]);
+    inFavorites();
+  };
 
-  // useEffect(() => {
-  //   setListFavorites([]);
-  // }, []);
-
-  if (teamReqStatus === "loading") {
-    return <div>Loading...</div>;
+  function inFavorites(): void {
+    const fav = teams.map((team) => {
+      team.check = false;
+      const res = favoriteList.some((favorite) => favorite.team[0].id === team.id);
+      if (res) {
+        team.check = true;
+      }
+      return team;
+    });
   }
 
-  if (teamReqStatus === "error") {
-    return <div>Error: {error}</div>;
-  }
   return (
     <IonPage>
       <IonHeader>
@@ -100,15 +101,15 @@ function SerieAList() {
             </IonRow>
             {teams.map((team: Team) => (
               <IonRow key={team.id}>
-                <IonCol id={team.id}>{team.position}</IonCol>
+                <IonCol>{team.position}</IonCol>
                 <IonCol>{team.name}</IonCol>
                 <IonCol>{team.mPlayed}</IonCol>
                 <IonCol>{team.mWons}</IonCol>
                 <IonCol>{team.points}</IonCol>
                 <IonCol>
                   <IonButton
-                    onClick={() => saveFavorite(team.id, team.league)}
-                    // color={favorites.includes(team.id) ? "danger" : "light"}
+                    onClick={() => addToFavorites(team)}
+                    color={team.check ? "danger" : "light"}
                     size="small"
                     fill="clear"
                   >

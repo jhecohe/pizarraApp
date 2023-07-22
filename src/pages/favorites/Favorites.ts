@@ -1,5 +1,5 @@
 import Team from "../../models/Team";
-import { favoriteTeam, searchTeams } from "../premier/TeamAPI";
+import { favoriteTeam, searchTeams } from "../premier/PremierAPI";
 
 export function searchFavorites() {
     if (!localStorage['favorites']) {
