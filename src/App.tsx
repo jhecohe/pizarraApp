@@ -24,6 +24,8 @@ import './theme/variables.css';
 import FavoriteList from './pages/favorites/FavoriteList';
 import PremierList from './pages/premier/PremierList';
 import SerieAList from './pages/serieA/SerieAList';
+import Admin from './pages/admin/Admin';
+import Page from './pages/Page';
 
 setupIonicReact();
 
@@ -35,9 +37,12 @@ const App: React.FC = () => {
           <Menu />
           <IonRouterOutlet id="main">
             <Route path="/" exact={true}>
-              <Redirect to="/page/Inbox" />
+              <Redirect to="/page" />
             </Route>
 
+            <Route path="/page" exact={true}>
+              <Page />
+            </Route>
             <Route path="/page/Premier" exact={true}>
               <PremierList />
             </Route>
@@ -46,6 +51,9 @@ const App: React.FC = () => {
             </Route>
             <Route path="/page/Favorites" exact={true}>
               <FavoriteList />
+            </Route>
+            <Route path="/page/Administration" exact={true}>
+              <Admin />
             </Route>
           </IonRouterOutlet>
         </IonSplitPane>

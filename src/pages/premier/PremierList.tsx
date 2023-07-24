@@ -7,14 +7,13 @@ import {
   IonGrid,
   IonHeader,
   IonIcon,
-  IonItem,
   IonMenuButton,
   IonPage,
   IonRow,
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { useParams } from "react-router";
+import { useHistory, useParams } from "react-router";
 import "./PremierList.css";
 import { trophy } from "ionicons/icons";
 import { useEffect, useState } from "react";
@@ -22,34 +21,46 @@ import { searchTeams } from "./PremierAPI";
 import { deleteFavorite, saveFavorite, searchFavorites } from "../favorites/FavoriteAPI";
 import Team from "../../models/Team";
 import ITeamsFavoritesByUser from "../../models/TeamsFavoritesByUser";
+import { getUsers } from "../user/UserAPI";
+import User from "../../models/User";
 
 const PremierList: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const [teams, setTeams] = useState<Team[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const history = useHistory();
   const [favoriteList, setFavoriteList] = useState<ITeamsFavoritesByUser[]>([]);
+  let userId = "";
 
   useEffect(() => {
     search();
+    getUser();
     loadFavorites();
-  }, [inFavorites()]);
+  }, [inFavorites(), history.location.pathname]);
 
   const search = async () => {
     let result: Team[] = await searchTeams();
     setTeams(result);
   };
 
+  const getUser = async () => {
+    let user: User[] = await getUsers();
+    setUsers(user);
+  }
+
   const loadFavorites = async () => {
-    let result: ITeamsFavoritesByUser[] = await searchFavorites("64b88f370a4f88dae3d2f07e");
+    console.log("User    ", userId)
+    let result: ITeamsFavoritesByUser[] = await searchFavorites(users[0].id);
     setFavoriteList(result);
     inFavorites();
   };
 
   const addToFavorites = async (team: Team) => {
     if (!favoriteList.find((fav) => fav.teamId === team.id)) {
-      const favorites: ITeamsFavoritesByUser[] = await saveFavorite(team.id, "64b88f370a4f88dae3d2f07e");
+      const favorites: ITeamsFavoritesByUser[] = await saveFavorite(team.id, users[0].id);
       setFavoriteList(favorites.filter((fav) => fav.team[0].league === "premier")); 
     } else {
-      const favorites: ITeamsFavoritesByUser[] = await deleteFavorite(team.id, "64b88f370a4f88dae3d2f07e");
+      const favorites: ITeamsFavoritesByUser[] = await deleteFavorite(team.id, users[0].id);
       setFavoriteList(favorites.filter((fav) => fav.team[0].league === "premier"));
     }
     inFavorites();
@@ -73,7 +84,7 @@ const PremierList: React.FC = () => {
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          <IonTitle>{name}</IonTitle>
+          <IonTitle>Premier League</IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -85,7 +96,7 @@ const PremierList: React.FC = () => {
         </IonHeader>
 
         <IonCard>
-          <IonTitle>Premier League</IonTitle>
+          <IonTitle>Season 2023 - 2024</IonTitle>
           <IonGrid className="teamTable">
             <IonRow>
               <IonCol>Position</IonCol>
@@ -96,7 +107,7 @@ const PremierList: React.FC = () => {
               <IonCol>Favorite</IonCol>
             </IonRow>
             {teams.map((team: Team) => (
-              <IonRow key={team.id}>
+              <IonRow key={team.key}>
                 <IonCol>{team.position}</IonCol>
                 <IonCol>{team.name}</IonCol>
                 <IonCol>{team.mPlayed}</IonCol>

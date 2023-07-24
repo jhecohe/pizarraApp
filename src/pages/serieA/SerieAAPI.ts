@@ -11,3 +11,15 @@ export async function searchTeams() {
   });
   return await response.json();
 }
+
+export async function scanSerieA() {
+  const url = import.meta.env.VITE_PIZARRA_API + "scan/serieA";
+
+  const response = await fetch(url, {
+    mode: "cors",
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return await response.json();
+}

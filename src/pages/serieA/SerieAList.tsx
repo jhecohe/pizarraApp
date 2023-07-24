@@ -13,14 +13,20 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { useParams } from "react-router";
+import { useHistory, useParams } from "react-router";
 import "./SerieAList.css";
 import { trophy } from "ionicons/icons";
 import { useEffect, useState } from "react";
 import { searchTeams } from "./SerieAAPI";
 import Team from "../../models/Team";
-import { deleteFavorite, saveFavorite, searchFavorites } from "../favorites/FavoriteAPI";
+import {
+  deleteFavorite,
+  saveFavorite,
+  searchFavorites,
+} from "../favorites/FavoriteAPI";
 import ITeamsFavoritesByUser from "../../models/TeamsFavoritesByUser";
+import User from "../../models/User";
+import { getUsers } from "../user/UserAPI";
 
 interface favoriteReq {
   idTeam: String;
@@ -30,12 +36,16 @@ interface favoriteReq {
 const SerieAList: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const [teams, setTeams] = useState<Team[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const history = useHistory();
   const [favoriteList, setFavoriteList] = useState<ITeamsFavoritesByUser[]>([]);
+  let userId = "";
 
   useEffect(() => {
     search();
+    getUser();
     loadFavorites();
-  }, [inFavorites()]);
+  }, [inFavorites(), history.location.pathname]);
 
   const search = async () => {
     let result: Team[] = await searchTeams();
@@ -43,18 +53,33 @@ const SerieAList: React.FC = () => {
   };
 
   const loadFavorites = async () => {
-    let result: ITeamsFavoritesByUser[] = await searchFavorites("64b88f370a4f88dae3d2f07e");
+    let result: ITeamsFavoritesByUser[] = await searchFavorites(users[0].id);
     setFavoriteList(result);
     inFavorites();
   };
 
+  const getUser = async () => {
+    let user: User[] = await getUsers();
+    setUsers(user);
+  };
+
   const addToFavorites = async (team: Team) => {
     if (!favoriteList.find((fav) => fav.teamId === team.id)) {
-      const favorites: ITeamsFavoritesByUser[] = await saveFavorite(team.id, "64b88f370a4f88dae3d2f07e");
-      setFavoriteList(favorites.filter((fav) => fav.team[0].league === "serieA"));
+      const favorites: ITeamsFavoritesByUser[] = await saveFavorite(
+        team.id,
+        users[0].id
+      );
+      setFavoriteList(
+        favorites.filter((fav) => fav.team[0].league === "serieA")
+      );
     } else {
-      const favorites: ITeamsFavoritesByUser[] = await deleteFavorite(team.id, "64b88f370a4f88dae3d2f07e");
-      setFavoriteList(favorites.filter((fav) => fav.team[0].league === "serieA"));
+      const favorites: ITeamsFavoritesByUser[] = await deleteFavorite(
+        team.id,
+        users[0].id
+      );
+      setFavoriteList(
+        favorites.filter((fav) => fav.team[0].league === "serieA")
+      );
     }
     inFavorites();
   };
@@ -62,7 +87,9 @@ const SerieAList: React.FC = () => {
   function inFavorites(): void {
     const fav = teams.map((team) => {
       team.check = false;
-      const res = favoriteList.some((favorite) => favorite.team[0].id === team.id);
+      const res = favoriteList.some(
+        (favorite) => favorite.team[0].id === team.id
+      );
       if (res) {
         team.check = true;
       }
@@ -100,7 +127,7 @@ const SerieAList: React.FC = () => {
               <IonCol>Favorite</IonCol>
             </IonRow>
             {teams.map((team: Team) => (
-              <IonRow key={team.id}>
+              <IonRow key={team.key}>
                 <IonCol>{team.position}</IonCol>
                 <IonCol>{team.name}</IonCol>
                 <IonCol>{team.mPlayed}</IonCol>
@@ -123,6 +150,6 @@ const SerieAList: React.FC = () => {
       </IonContent>
     </IonPage>
   );
-}
+};
 
 export default SerieAList;

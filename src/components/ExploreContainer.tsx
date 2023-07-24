@@ -7,8 +7,8 @@ interface ContainerProps {
 const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
   return (
     <div id="container">
-      <strong>{name}</strong>
-      <p>Explore <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+      <strong>Jherson Cohecha</strong>
+      <p>Web: <a target="_blank" rel="noopener noreferrer" href="http://jhecohe.gitlab.io/">jhecohe</a></p>
     </div>
   );
 };
