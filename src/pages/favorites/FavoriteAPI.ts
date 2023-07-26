@@ -14,13 +14,13 @@ export async function searchFavorites(userId: string) {
 
 export function removeTeam() {}
 
-export async function saveFavorite(teamId: string, userId: string) {
+export async function saveFavorite(teamId: string, userId: string, league: string) {
   const url = import.meta.env.VITE_PIZARRA_API + "favorite";
 
   const response = await fetch(url, {
     method: "POST",
     mode: "cors",
-    body: JSON.stringify({ teamId: teamId, userId: userId }),
+    body: JSON.stringify({ teamId: teamId, userId: userId, league: league }),
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Content-Type": "application/json;charset=UTF-8",

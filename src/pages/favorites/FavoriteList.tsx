@@ -19,25 +19,34 @@ import { close } from "ionicons/icons";
 import { useEffect, useState } from "react";
 import ITeamsFavoritesByUser from "../../models/TeamsFavoritesByUser";
 import { deleteFavorite, searchFavorites } from "./FavoriteAPI";
+import User from "../../models/User";
+import { getUsers } from "../user/UserAPI";
 
 const FavoriteList: React.FC = () => {
   const url = import.meta.env.VITE_PIZARRA_API + "favorite";
 
   const { name } = useParams<{ name: string }>();
+  const [users, setUsers] = useState<User[]>([]);
   const history = useHistory();
   const [teamsFavarites, setTeamsFavarites] = useState<ITeamsFavoritesByUser[]>([]);
 
   useEffect(() => {
     search();
+    getUser();
   }, [history.location.pathname]);
 
   const search = async () => {
-    let result: ITeamsFavoritesByUser[] = await searchFavorites("64b88f370a4f88dae3d2f07e");
+    let result: ITeamsFavoritesByUser[] = await searchFavorites(users[0].id);
     setTeamsFavarites(result);
   };
 
+  const getUser = async () => {
+    let user: User[] = await getUsers();
+    setUsers(user);
+  }
+
   const removeFavorites = async (team: ITeamsFavoritesByUser) => {
-    const favorites: ITeamsFavoritesByUser[] = await deleteFavorite(team.teamId, "64b88f370a4f88dae3d2f07e");
+    const favorites: ITeamsFavoritesByUser[] = await deleteFavorite(team.teamId, users[0].id);
     setTeamsFavarites(favorites);
   };
 

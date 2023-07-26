@@ -67,7 +67,8 @@ const SerieAList: React.FC = () => {
     if (!favoriteList.find((fav) => fav.teamId === team.id)) {
       const favorites: ITeamsFavoritesByUser[] = await saveFavorite(
         team.id,
-        users[0].id
+        users[0].id,
+        team.league
       );
       setFavoriteList(
         favorites.filter((fav) => fav.team[0].league === "serieA")

@@ -12,8 +12,8 @@ import { useHistory, useParams } from "react-router";
 import "../premier/PremierList.css";
 import { useEffect, useState } from "react";
 import Team from "../../models/Team";
-import { scanPremier } from "../premier/PremierAPI";
-import { scanSerieA } from "../serieA/SerieAAPI";
+import { deletePremier, scanPremier } from "../premier/PremierAPI";
+import { deleteSerieA, scanSerieA } from "../serieA/SerieAAPI";
 import User from "../../models/User";
 import { getUsers } from "../user/UserAPI";
 
@@ -76,6 +76,16 @@ const Administration: React.FC = () => {
     }
   }
 
+  const removeSerieA = () => {
+    deleteSerieA();
+    alert(" Deleted teams from serie A");
+  };
+
+  const removePremier = () => {
+    deletePremier();
+    alert(" Deleted teams from serie A");
+  };
+
   return (
     <IonPage>
       <IonContent fullscreen>
@@ -96,7 +106,9 @@ const Administration: React.FC = () => {
           >
             Update
           </IonButton>
-          <IonButton fill="clear">Clear</IonButton>
+          <IonButton fill="clear" onClick={() => removePremier()}>
+            Clear
+          </IonButton>
         </IonCard>
         <IonCard>
           <IonCardHeader>
@@ -115,7 +127,9 @@ const Administration: React.FC = () => {
           >
             Update
           </IonButton>
-          <IonButton fill="clear">Clear</IonButton>
+          <IonButton fill="clear" onClick={() => removeSerieA()}>
+            Clear
+          </IonButton>
         </IonCard>
       </IonContent>
     </IonPage>

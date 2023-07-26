@@ -57,7 +57,7 @@ const PremierList: React.FC = () => {
 
   const addToFavorites = async (team: Team) => {
     if (!favoriteList.find((fav) => fav.teamId === team.id)) {
-      const favorites: ITeamsFavoritesByUser[] = await saveFavorite(team.id, users[0].id);
+      const favorites: ITeamsFavoritesByUser[] = await saveFavorite(team.id, users[0].id, team.league);
       setFavoriteList(favorites.filter((fav) => fav.team[0].league === "premier")); 
     } else {
       const favorites: ITeamsFavoritesByUser[] = await deleteFavorite(team.id, users[0].id);
